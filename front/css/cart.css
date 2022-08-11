@@ -22,12 +22,14 @@ h2 {
 	padding-top: 35px;
 	margin-bottom: 30px;
 }
-.cart__item__img {
-	width: 25%;
-}
+
 .cart__item__img img {
 	width: 100%;
 	border-radius: 25px;
+}
+
+.item__img{
+	width: 25%;
 }
 .cart__item__content {
 	width: 50%;

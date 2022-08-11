@@ -3,6 +3,10 @@
 const queryString = window.location.search
 const urlParams = new URLSearchParams(queryString)
 const id = urlParams.get("id")
+if (id != null){
+let itemPrice = 0
+let imgUrl, altText,articleName
+}
 
 //Recuperation des sous objets se trouvant dans l'objet principal
 fetch(`http://localhost:3000/api/products/${id}`)
@@ -10,9 +14,12 @@ fetch(`http://localhost:3000/api/products/${id}`)
 .then((res) => handleData(res))
 
 // Passation de ces objets a leur contenu 
-function handleData( Autonoé){
-  console.log({ Autonoé})
-const {altTxt, colors, description, imageUrl, name, price, _id} = Autonoé
+function handleData( KANAP){
+const {altTxt, colors, description, imageUrl, name, price}= KANAP
+itemPrice = price
+imgUrl = imageUrl
+altText = altTxt
+articleName = name
 makeImage(imageUrl, altTxt)
 maketitle(name)
 makePrice(price)
@@ -46,35 +53,51 @@ function makeDescription(description){
 function makeColors(colors){
   const select = document.querySelector("#colors")
   if (select !=null) {
-    colors.forEach ((color) => {
+    colors.forEach ((colors) => {
       const option = document.createElement("option")
-      option.value = color
-      option.textContent = color
+      option.value = colors
+      option.textContent = colors
       select.appendChild(option)
     })
   }
 }
 
+const button = document.querySelector("#addToCart")
+button.addEventListener("click", handleClick) 
 
-const Button = document.querySelector("#addToCart")
-  if (Button != null){
-    Button.addEventlistener("click", (e) => {
-      //@ts-ignore
-      const color = document.querySelector("#colors").value
-      const quantity = document.querySelector("#quantity").value
-      if (color != null || quantity !=null){
-        alert("please select a color and quantity")
-      }
-  })
+function handleClick(){
+  const color= document.querySelector("#colors").value
+  const quantity = document.querySelector("#quantity").value
+ if (isOrderInValid(color, quantity)) return
+  saveOrder(color, quantity)
+  window.location.href = "cart.html"
+  redirectToCart()
 }
 
+function saveOrder(color, quantity) {
+  const data = {
+    id:id,
+    color:color,
+    quantity:Number(quantity),
+    price:itemPrice,
+    imageUrl: imgUrl,
+     altTxt: altText,
+     name : articleName
 
+    }
+    localStorage.setItem(id, JSON.stringify(data));
+}
 
+function isOrderInValid(color, quantity) {
+  if (color == null || color === "" || quantity == null || quantity == 0) {
+    alert("please select a color and quantity")
+     return true
+   }
+}
 
-
-
-
-
+//function redirectToCart(){
+ // window.location.href = "cart.html"
+//}*/
 
 
 
