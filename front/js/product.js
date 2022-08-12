@@ -75,8 +75,10 @@ function handleClick(){
 }
 
 function saveOrder(color, quantity) {
+ // const data = {
+  const key = `${id}-${color}`
   const data = {
-    id:id,
+    id: id,
     color:color,
     quantity:Number(quantity),
     price:itemPrice,
@@ -85,7 +87,7 @@ function saveOrder(color, quantity) {
      name : articleName
 
     }
-    localStorage.setItem(id, JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
 function isOrderInValid(color, quantity) {
