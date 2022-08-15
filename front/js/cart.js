@@ -60,18 +60,19 @@ const ville = document.getElementById("city");
 const adresse = document.getElementById("address");
 const mail = document.getElementById("email");
 
+
  //emailErrorMsg
-const emailErrorMsg = document.getElementById("emailErrorMsg");
-function validateEmail(mail) {
-  const regexMail = /^[a-z][a-z '-.,]{1,31}$|^$/i;
-   // /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (regexMail.test(mail) == false) {
-    return false;
-  } else {
-    emailErrorMsg.innerHTML = null;
-    return true;
-  }
-}
+ const emailErrorMsg = document.getElementById("emailErrorMsg");
+ function validateEmail(email) {
+   const regexEmail = 
+     /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+   if (regexEmail.test(email) == false) {
+     return false;
+   } else {
+     emailErrorMsg.innerHTML = null;
+     return true;
+   }
+ }
 // regex from name
 
 const regexName = /^[a-z][a-z '-.,]{1,31}$|^$/i;
