@@ -1,183 +1,131 @@
-const cart = []
+// gets the cart from localStorage ; 
+function getCart() {
+  let items = [];
+  if (localStorage.getItem("panier") != null) {
+    items = JSON.parse(localStorage.getItem("panier"));
+  }
+  return items;
+}
 
-retrieveItemsFromCache()
-console.log(cart)
-cart.forEach( (item) => displayItem(item) ) 
-    
-//altTxt: "Photo d'un canapé rose, trois places"
-//color: "Yellow"
-//id: "a6ec5b49bd164d7fbe10f37b6363f9fb"
-//imageUrl: "http://localhost:3000/images/kanap08.jpeg"
-//name: "Kanap orthosie"
-//price: 3999
-//quantity: 2
-
-function retrieveItemsFromCache() {
-const numberOfItems = localStorage.length
-for(let i=0;i < numberOfItems;i++) {
-const item = localStorage.getItem(localStorage.key(i)) || ""
-const itemObject = JSON.parse(item)  
-cart.push(itemObject)  
+function add2Cart(productId, color, qty) {
+  if (qty <= 0 || color == "") {
+    return;
+  }
+  let items = getCart();
+  if (items.length == 0) {
+    items = [[productId, color, qty]];
+  } else {
+    let found = false;
+    for (let i = 0; i < items.length; i++) {
+      if (productId === items[i][0] && color === items[i][1]) {
+        found = true;
+        items[i][2] += qty;
+      }
     }
+    if (found == false) {
+      let item = [productId, color, qty];
+      items.push(item);
+    }
+  }
+  localStorage.setItem("panier", JSON.stringify(items));
 }
 
-function displayItem(item){
-    const article = makeArticle(item)
-    const imageDiv = makeImageDiv(item)
-    article.appendChild(imageDiv)
-
-    const cardItemContent = makeCartContent(item)
-    article.appendChild(cardItemContent)
-    displayArticle(article)
-    displayTotalQuantity(item)
-    displayTotalPrice(item)
-
+// function deleItem from the localStorage
+function deleteItem(id, color) {
+  let items = getCart();
+  for (i = 0; i < items.length; i++) {
+    if (id === items[i][0] && color === items[i][1]) {
+      items.splice(i, 1);
+      localStorage.setItem("panier", JSON.stringify(items));
+      window.location.reload();
+    }
+  }
+}
+// function changeQuantity 
+function changeQuantity(id, color, qty) {
+  let items = getCart();
+  for (let i = 0; i < items.length; i++) {
+    if (id === items[i][0] && color === items[i][1]) {
+      items[i][2] = qty;
+    }
+    localStorage.setItem("panier", JSON.stringify(items));
+    window.location.reload();
+  }
 }
 
+// POST & REGEXs
+const prenom = document.getElementById("firstName");
+const nom = document.getElementById("lastName");
+const ville = document.getElementById("city");
+const adresse = document.getElementById("address");
+const mail = document.getElementById("email");
 
-function displayTotalQuantity() {
-    const totalQuantity = document.querySelector("#totalQuantity")
-    const total = cart.reduce((total, item) => total + item.quantity, 0)
-    totalQuantity.textContent = total
+ //emailErrorMsg
+const emailErrorMsg = document.getElementById("emailErrorMsg");
+function validateEmail(mail) {
+  const regexMail = /^[a-z][a-z '-.,]{1,31}$|^$/i;
+   // /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (regexMail.test(mail) == false) {
+    return false;
+  } else {
+    emailErrorMsg.innerHTML = null;
+    return true;
+  }
+}
+// regex from name
+
+const regexName = /^[a-z][a-z '-.,]{1,31}$|^$/i;
+//firstNameErrorMsg
+const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+function validateFirstName(prenom) {
+  if (regexName.test(prenom) == false) {
+    return false;
+  } else {
+    firstNameErrorMsg.innerHTML = null;
+    return true;
+  }
 }
 
-function displayTotalPrice() {
- const totalPrice = document.querySelector("#totalPrice")
-const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
-totalPrice.textContent = total
+ //lastNameErrorMsg
+const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+function validateLastName(nom) {
+  if (regexName.test(nom) == false) {
+    return false;
+  } else {
+    lastNameErrorMsg.innerHTML = null;
+    return true;
+  }
 }
 
-function makeCartContent(item) {
-    const cardItemContent = document.createElement("div")
-    cardItemContent.classList.add("cart__item__content")
-    const description = makeDescription(item)
-    const settings = makeSettings(item)
-    cardItemContent.appendChild(description)
-    cardItemContent.appendChild(settings)
-    return cardItemContent 
-   
+ //cityErrorMsg
+const cityErrorMsg = document.getElementById("cityErrorMsg");
+function validateCity(ville) {
+  if (regexName.test(ville) == false) {
+    return false;
+  } else {
+    cityErrorMsg.innerHTML = null;
+    return true;
+  }
 }
 
-function makeSettings(item){
-    const settings = document.createElement("div")
-    settings.classList.add("cart__item__content__settings")
+function makeJsonData() {
+  let contact = {
+    firstName: prenom.value,
+    lastName: nom.value,
+    address: adresse.value,
+    city: ville.value,
+    email: mail.value,
+  };
+  let items = getCart();
+  let products = [];
 
-    addQuantityToSettings(settings, item)
-    addDeleteToSettings(settings, item)
-    return settings
-}
-
-function addDeleteToSettings(settings, item) {
-    const div = document.createElement("div")
-    div.classList.add("cart__item__content__settings__delete")
-div.addEventListener("click", () => deleteItem(item))
-
-    const p = document.createElement("p")
-    p.textContent = "supprimer"
-    div.appendChild(p)
-    settings.appendChild(div)
-}
-
-function deleteItem(item) {
-    const itemToDelete = cart.findIndex(
-    (product) => product.id === item.id && product.color === item.color)
-   cart.splice(itemToDelete, 1)
-
-    displayTotalPrice()
-    displayTotalQuantity()
-    deleteDataFromCache(item)
-    deleteArticleFromPage(item)
-}
-
-function deleteArticleFromPage(item) {
-    const articleToDelete = document.querySelector(
-        `article[data-id="${item.id}"][data-color="${item.color}"]`
-    )
-   // console.log("Deleting article", articleToDelete)
-    articleToDelete.remove()
-}
-
-function addQuantityToSettings(settings, item) {
-    const quantity = document.createElement("div")
-    quantity.classList.add("cart__item__content__settings__quantity")
-
-    const p = document.createElement("p")
-    p.textContent = "Qté : "
-    quantity.appendChild(p)
-    const input = document.createElement("input")
-   // console.log("input", input)
-    input.type = "number"
-    input.classList.add("itemQuantity")
-    input.name ="itemQuantity"
-    input.min = "1"
-    input.max = "100"
-    input.value = item.quantity
-    input.addEventListener("input", () => updatePriceAndQuantity( item.id, input.value, item))
-
-    quantity.appendChild(input)
-    settings.appendChild(quantity)
-}
-
-function updatePriceAndQuantity( id, newValue, item) {
-const itemToUpdate = cart.find((item) => item.id === id)
-itemToUpdate.quantity = Number(newValue)
-item.quantity = itemToUpdate.quantity
-displayTotalQuantity()
-displayTotalPrice()
-saveNewDataFromCache(item)
-}
-
-function deleteDataFromCache(item) {
-    const key = `${item.id}-${item.color}`
-    localStorage.removeItem(key)
-    console.log("remove setkey", key)
-}
-
-function saveNewDataToCache(item) {
-    const dataToSave = JSON.stringify(item)
-    const key = `${item.id}-${item.color}`
-    localStorage.setItem(key, dataToSave)
-}
-
-
-function makeDescription(item) {
-    const description = document.createElement("div")
-    description.classList.add("card__item__content__description")
-
-    const h2 = document.createElement("h2")
-    h2.textContent = item.name
-    const p = document.createElement("p")
-    p.textContent = item.color
-    const p2 = document.createElement("p2")
-    p2.textContent = item.price + "  €"
-    
-    description.appendChild(h2)
-    description.appendChild(p)
-    description.appendChild(p2)
-    return description
-   
-}
-
-
-function displayArticle(article) {
-    document.querySelector("#cart__items").appendChild(article)
-}
-
-function makeArticle(item) {
-    const article = document.createElement("article")
-    article.classList.add("card__item")
-    article.dataset.id = item.id
-    article.dataset.color = item.color
-    return article
-}
-
-function makeImageDiv(item) {
-    const div = document.createElement("div")
-    div.classList.add("cart__item__img")
-
-    const image = document.createElement("img")
-    image.src = item.imageUrl
-    image.alt = item.altTxt
-    div.appendChild(image)
-    return div
+  for (i = 0; i < items.length; i++) {
+    if (products.find((e) => e == items[i][0])) {
+      console.log("not found");
+    } else {
+      products.push(items[i][0]);
+    }
+  }
+  let jsonData = JSON.stringify({ contact, products });
+  return jsonData;
 }
