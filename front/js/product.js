@@ -1,69 +1,124 @@
-////////
-// getting id of the teddy from the single.html URL
-////////
-const str = window.location;
-const url = new URL(str);
-const id = url.searchParams.get("id");
-const host = "https://kanapjmax.herokuapp.com/";
-const objectURL = host + "api/products/" + id;
+// Récupération de l'id du produit via l' URL
+const params = new URLSearchParams(document.location.search);
+const id = params.get("_id"); 
 
-/////////
-// Fetching data from backend & constructing DOM
-/////////
-let cardsFetch = function () {
-  fetch(objectURL)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      // get data image
-      let img = document.querySelector(".item__img");
-      img.innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`;
-      // data.name and title
-      let name = document.getElementById("title");
-      name.innerHTML = data.name;
-      let title = document.querySelector("title");
-      title.innerHTML = data.name;
-      // price
-      let price = document.getElementById("price");
-      price.innerHTML = `${data.price}`;
-      // description
-      let description = document.getElementById("description");
-      description.innerHTML = data.description;
-      // colors
-      let color = document.getElementById("colors");
-      for (i = 0; i < data.colors.length; i++) {
-        color.innerHTML += `<option value="${data.colors[i]}">${data.colors[i]}</option>`;
+fetch("http://localhost:3000/api/products")
+  .then((res) => res.json())
+  .then((objetProduits) => {
+    lesProduits(objetProduits);
+  })
+  .catch((err) => {
+    document.querySelector(".item").innerHTML = "<h1>erreur 404</h1>";
+  });
+
+// objet articleClient
+let articleClient = {};
+articleClient._id = id;
+//fonction produits
+function lesProduits(produit) {
+  let imageAlt = document.querySelector("article div.item__img");
+  let titre = document.querySelector("#title");
+  let prix = document.querySelector("#price");
+  let description = document.querySelector("#description");
+  let couleurOption = document.querySelector("#colors");
+  for (let choix of produit) {
+    if (id === choix._id) {
+      //ajout des éléments facon dynamique
+      imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
+      titre.textContent = `${choix.name}`;
+      prix.textContent = `${choix.price}`;
+      description.textContent = `${choix.description}`;
+      for (let couleur of choix.colors) {
+        couleurOption.innerHTML += `<option value="${couleur}">${couleur}</option>`;
       }
-    });
-};
-cardsFetch();
+    }
+  }
+}
+// choix couleur dynamique
+let choixCouleur = document.querySelector("#colors");
+choixCouleur.addEventListener("input", (ec) => {
+  let couleurProduit;
+  couleurProduit = ec.target.value;
+  articleClient.couleur = couleurProduit;
+  document.querySelector("#addToCart").style.color = "white";
+  document.querySelector("#addToCart").textContent = "Ajouter au panier";
+});
 
-////////
-//Getting HTML values from HTML
-/////////
-// function that gets quantity value of the form in the markup
-function qtyValue() {
-  let qty = document.getElementById("quantity");
-  return qty.value;
+// choix quantité dynamique
+
+let choixQuantité = document.querySelector('input[id="quantity"]');
+let quantitéProduit;
+choixQuantité.addEventListener("input", (eq) => {
+  quantitéProduit = eq.target.value;
+  articleClient.quantité = quantitéProduit;
+  document.querySelector("#addToCart").style.color = "white";
+  document.querySelector("#addToCart").textContent = "Ajouter au panier";
+});
+
+// conditions de validation du clic via le bouton
+let choixProduit = document.querySelector("#addToCart");
+choixProduit.addEventListener("click", () => {
+  if (
+    articleClient.quantité < 1 ||
+    articleClient.quantité > 100 ||
+    articleClient.quantité === undefined ||
+    articleClient.couleur === "" ||
+    articleClient.couleur === undefined
+  ) {
+    
+    alert("Pour valider le choix de cet article, veuillez renseigner une couleur, et/ou une quantité valide entre 1 et 100");
+
+  } else {
+    // joue panier
+    Panier();
+    document.querySelector("#addToCart").style.color = "rgb(0, 205, 0)";
+    document.querySelector("#addToCart").textContent = "Produit ajouté !";
+  }
+});
+
+// Déclaration de tableaux 
+let choixProduitClient = [];
+let produitsEnregistrés = [];
+let produitsTemporaires = [];
+let produitsAPousser = [];
+
+function ajoutPremierProduit() {
+  if (produitsEnregistrés === null) {
+    choixProduitClient.push(articleClient);
+    return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
+  }
 }
 
-// function that get the kanap color value in the markup
-function colorValue() {
-  let color = document.getElementById("colors");
-  return color.value;
+function ajoutAutreProduit() {
+  produitsAPousser = [];
+  produitsTemporaires.push(articleClient);
+  produitsAPousser = [...produitsEnregistrés, ...produitsTemporaires];
+  produitsAPousser.sort(function triage(a, b) {
+    if (a._id < b._id) return -1;
+    if (a._id > b._id) return 1;
+    if (a._id = b._id){
+      if (a.couleur < b.couleur) return -1;
+      if (a.couleur > b.couleur) return 1;
+    }
+    return 0;
+  });
+  produitsTemporaires = [];
+  return (localStorage.panierStocké = JSON.stringify(produitsAPousser));
+}
+// fonction Panier qui ajuste la quantité 
+function Panier() {
+  produitsEnregistrés = JSON.parse(localStorage.getItem("panierStocké"));
+  if (produitsEnregistrés) {
+    for (let choix of produitsEnregistrés) {
+      if (choix._id === id && choix.couleur === articleClient.couleur) {
+        alert("RAPPEL: Vous aviez déja choisit cet article.");
+        let additionQuantité = parseInt(choix.quantité) + parseInt(quantitéProduit);
+        choix.quantité = JSON.stringify(additionQuantité);
+        return (localStorage.panierStocké = JSON.stringify(produitsEnregistrés));
+      }
+    }
+    return ajoutAutreProduit();
+  }
+  return ajoutPremierProduit();
 }
 
-// HTML element : button add to cart
-const toCartBtn = document.getElementById("addToCart");
-const goToCartButton = document.getElementById("goToCart");
-goToCartButton.style.display = "none";
-// at button press : toCartBtn, function addCart that activates the 2 other function by click
-toCartBtn.addEventListener("click", () => {
-  let qty = parseInt(qtyValue());
-  let color = colorValue();
-  add2Cart(id, color, qty);
-  goToCartButton.style.display = "block";
-});
-goToCartButton.addEventListener("click", () => {
-  window.location.href = "./cart.html";
-});
