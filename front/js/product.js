@@ -5,9 +5,9 @@ const id = params.get("_id");
 fetch("http://localhost:3000/api/products")
   .then((res) => res.json())
   .then((objetProduits) => {
-    lesProduits(objetProduits);
+     handleData(objetProduits);
   })
-  .catch((err) => {
+  .catch(() => {
     document.querySelector(".item").innerHTML = "<h1>erreur 404</h1>";
   });
 
@@ -15,7 +15,7 @@ fetch("http://localhost:3000/api/products")
 let articleClient = {};
 articleClient._id = id;
 //fonction produits
-function lesProduits(produit) {
+function  handleData(produit) {
   let imageAlt = document.querySelector("article div.item__img");
   let titre = document.querySelector("#title");
   let prix = document.querySelector("#price");
@@ -69,7 +69,7 @@ choixProduit.addEventListener("click", () => {
     alert("Pour valider le choix de cet article, veuillez renseigner une couleur, et/ou une quantité valide entre 1 et 100");
 
   } else {
-    // joue panier
+    // ajoue panier
     Panier();
     document.querySelector("#addToCart").style.color = "rgb(0, 205, 0)";
     document.querySelector("#addToCart").textContent = "Produit ajouté !";
@@ -81,14 +81,14 @@ let choixProduitClient = [];
 let produitsEnregistrés = [];
 let produitsTemporaires = [];
 let produitsAPousser = [];
-
+// fonction ajout du 1er produit 
 function ajoutPremierProduit() {
   if (produitsEnregistrés === null) {
     choixProduitClient.push(articleClient);
     return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
   }
 }
-
+// mise emplace de la fonction des autres produits
 function ajoutAutreProduit() {
   produitsAPousser = [];
   produitsTemporaires.push(articleClient);
@@ -121,4 +121,3 @@ function Panier() {
   }
   return ajoutPremierProduit();
 }
-

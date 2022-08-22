@@ -12,6 +12,7 @@ fetch("http://localhost:3000/api/products")
 } else {
   console.log("sur page confirmation");
 }
+// fonction affichagepqnier
 function affichagePanier(index) {
   let panier = JSON.parse(localStorage.getItem("panierStocké"));
    if (panier && panier.length != 0) {
@@ -153,7 +154,7 @@ if (page.match("cart")) {
   document.querySelector("#email").setAttribute("type", "text");
 }
 
-//regex 
+//         definition des regex 
 let regexLettre = /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
 let regexChiffreLettre = /^[a-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,60}$/i;
 let regValideEmail = /^[a-z0-9æœ.!#$%&’*+/=?^_`{|}~"(),:;<>@[\]-]{1,60}$/i;
