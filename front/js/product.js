@@ -50,23 +50,23 @@ choixCouleur.addEventListener("input", (ec) => {
   console.log(couleurProduit);
 });
 // choix quantité dynamique et définition des variables
-let choixQuantité = document.querySelector('input[id="quantity"]');
-let quantitéProduit;
-choixQuantité.addEventListener("input", (eq) => {
-  quantitéProduit = eq.target.value;
-  articleClient.quantité = quantitéProduit;
+let choixQuantity = document.querySelector('input[id="quantity"]');
+let quantiteProduit;
+choixQuantity.addEventListener("input", (eq) => {
+  quantiteProduit = eq.target.value;
+  articleClient.quantity = quantiteProduit;
   document.querySelector("#addToCart").style.color = "white";
   document.querySelector("#addToCart").textContent = "Ajouter au panier";
-  console.log(quantitéProduit);
+  console.log(quantiteProduit);
 });
 // conditions de validation du clic via le bouton ajouter au panier et déclaration variable
 let choixProduit = document.querySelector("#addToCart");
 choixProduit.addEventListener("click", () => {
   //conditions de validation du bouton ajouter au panier
   if (
-    articleClient.quantité < 1 ||
-    articleClient.quantité > 100 ||
-    articleClient.quantité === undefined ||
+    articleClient.quantity < 1 ||
+    articleClient.quantity > 100 ||
+    articleClient.quantity === undefined ||
     articleClient.couleur === "" ||
     articleClient.couleur === undefined
   ) {
@@ -83,21 +83,21 @@ choixProduit.addEventListener("click", () => {
 
 // Déclaration de tableaux utiles (voir mutation) et déclaration tableau qui sera le 1er, unique et destiné à initialiser le panier
 let choixProduitClient = [];
-let produitsEnregistrés = [];
+let produitsEnregistres = [];
 let produitsTemporaires = [];
 let produitsAPousser = [];
 // fonction ajoutPremierProduit qui ajoute l'article choisi dans le tableau vierge
 function ajoutPremierProduit() {
-  if (produitsEnregistrés === null) {
+  if (produitsEnregistres === null) {
     choixProduitClient.push(articleClient);
-    return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
+    return (localStorage.panierStocke = JSON.stringify(choixProduitClient));
   }
 }
 // fonction ajoutAutreProduit qui ajoute l'article dans le tableau non vierge et fait un tri 
 function ajoutAutreProduit() {
   produitsAPousser = [];
   produitsTemporaires.push(articleClient);
-  produitsAPousser = [...produitsEnregistrés, ...produitsTemporaires];
+  produitsAPousser = [...produitsEnregistres, ...produitsTemporaires];
   //fonction pour trier et classer les id puis les couleurs 
   produitsAPousser.sort(function triage(a, b) {
     if (a._id < b._id) return -1;
@@ -109,19 +109,19 @@ function ajoutAutreProduit() {
     return 0;
   });
   produitsTemporaires = [];
-  return (localStorage.panierStocké = JSON.stringify(produitsAPousser));
+  return (localStorage.panierStocke = JSON.stringify(produitsAPousser));
 }
 
-// fonction Panier qui ajuste la quantité si le produit est déja dans le tableau, sinon le rajoute si tableau il y a, ou créait le tableau avec un premier article choisi 
+// fonction Panier qui ajuste la quantite si le produit est deja dans le tableau, sinon le rajoute si tableau il y a, ou creait le tableau avec un premier article choisi 
 function Panier() {
-  produitsEnregistrés = JSON.parse(localStorage.getItem("panierStocké"));
-  if (produitsEnregistrés) {
-    for (let choix of produitsEnregistrés) {
+  produitsEnregistres = JSON.parse(localStorage.getItem("panierStocke"));
+  if (produitsEnregistres) {
+    for (let choix of produitsEnregistres) {
       if (choix._id === id && choix.couleur === articleClient.couleur) {
         alert(" Cet article a déja été choisi.");
-        let additionQuantité = parseInt(choix.quantité) + parseInt(quantitéProduit);
-        choix.quantité = JSON.stringify(additionQuantité);
-        return (localStorage.panierStocké = JSON.stringify(produitsEnregistrés));
+        let additionQuantite = parseInt(choix.quantite) + parseInt(quantiteProduit);
+        choix.quantite = JSON.stringify(additionQuantite);
+        return (localStorage.panierStocke = JSON.stringify(produitsEnregistres));
       }
     }
     return ajoutAutreProduit();

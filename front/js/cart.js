@@ -368,7 +368,7 @@ function envoiPaquet() {
     })
       .then((res) => res.json())
       .then((data) => {
-        window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`;
+        window.location.href = `./confirmation.html?commande=${data.orderId}`;
       })
       .catch(function (err) {
         console.log(err);
